@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from '../api/axios';
 import useInput from '../hooks/useInput'
 
+const NAME_REGEX = /^[A-z][A-z\s.,']{0,22}[A-z]$/;
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
@@ -14,9 +15,12 @@ const Register = () => {
     const userRef = useRef();
     const errRef = useRef();
 
-    const [user, resetUser, userAttributes] = useInput('user', '');
     const [name, resetName, nameAttributes] = useInput('name', '');
     const [validName, setValidName] = useState(false);
+    const [nameFocus, setNameFocus] = useState(false);
+
+    const [user, resetUser, userAttributes] = useInput('user', '');
+    const [validUsername, setValidUsername] = useState(false);
     const [userFocus, setUserFocus] = useState(false);
 
     const [pwd, setPwd] = useState('');
@@ -35,7 +39,11 @@ const Register = () => {
     }, [])
 
     useEffect(() => {
-        setValidName(USER_REGEX.test(user));
+        setValidName(NAME_REGEX.test(name));
+    }, [name])
+
+    useEffect(() => {
+        setValidUsername(USER_REGEX.test(user));
     }, [user])
 
     useEffect(() => {
@@ -45,7 +53,7 @@ const Register = () => {
 
     useEffect(() => {
         setErrMsg('');
-    }, [user, pwd, matchPwd])
+    }, [name, user, pwd, matchPwd])
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -90,8 +98,10 @@ const Register = () => {
         <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
         <h1>Register</h1>
         <form onSubmit={handleSubmit}>
-        <label htmlFor="name">
+            <label htmlFor="name">
                 Name:
+                <FontAwesomeIcon icon={faCheck} className={validName ? "valid" : "hide"} />
+                <FontAwesomeIcon icon={faTimes} className={validName || !name ? "hide" : "invalid"} />
             </label>
             <input
                 type="text"
@@ -99,12 +109,22 @@ const Register = () => {
                 ref={userRef}
                 {...nameAttributes}
                 required
+                aria-invalid={validName ? "false" : "true"}
+                aria-describedby="nidnote"
+                onFocus={() => setNameFocus(true)}
+                onBlur={() => setNameFocus(false)}
             />
+            <p id="nidnote" className={nameFocus && name && !validName ? "instructions" : "offscreen"}>
+                <FontAwesomeIcon icon={faInfoCircle} />
+                2 to 24 characters.<br />
+                Must begin & end with a letter.<br />
+                Letters, spaces, dots, commas, apostrophes allowed.
+            </p>
 
             <label htmlFor="username">
                 Username:
-                <FontAwesomeIcon icon={faCheck} className={validName ? "valid" : "hide"} />
-                <FontAwesomeIcon icon={faTimes} className={validName || !user ? "hide" : "invalid"} />
+                <FontAwesomeIcon icon={faCheck} className={validUsername ? "valid" : "hide"} />
+                <FontAwesomeIcon icon={faTimes} className={validUsername || !user ? "hide" : "invalid"} />
             </label>
             <input
                 type="text"
@@ -112,12 +132,12 @@ const Register = () => {
                 autoComplete="off"
                 {...userAttributes}
                 required
-                aria-invalid={validName ? "false" : "true"}
+                aria-invalid={validUsername ? "false" : "true"}
                 aria-describedby="uidnote"
                 onFocus={() => setUserFocus(true)}
                 onBlur={() => setUserFocus(false)}
             />
-             <p id="uidnote" className={userFocus && user && !validName ? "instructions" : "offscreen"}>
+             <p id="uidnote" className={userFocus && user && !validUsername ? "instructions" : "offscreen"}>
                 <FontAwesomeIcon icon={faInfoCircle} />
                 4 to 24 characters.<br />
                 Must begin with a letter.<br />
@@ -167,7 +187,7 @@ const Register = () => {
                 <FontAwesomeIcon icon={faInfoCircle} />
                 Must match the first password input field.
             </p>
-            <button disabled={!validName || !validPwd || !validMatch ? true : false}>Sign Up</button>
+            <button disabled={!validName || !validUsername || !validPwd || !validMatch ? true : false}>Sign Up</button>
         </form>
         <p>
             Already registered?<br />
