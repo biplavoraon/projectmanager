@@ -1,5 +1,5 @@
 import axios from 'axios';
-const BASE_URL = 'https://projectmanager-api.onrender.com';
+const BASE_URL = 'https://projectmanager-api.fly.dev';
 
 export default axios.create({
     baseURL: BASE_URL
