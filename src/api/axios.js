@@ -1,5 +1,5 @@
 import axios from 'axios';
-const BASE_URL = 'https://project-manager-api.fly.dev';
+const BASE_URL = 'https://projectmanager-api-production.up.railway.app';
 
 export default axios.create({
     baseURL: BASE_URL

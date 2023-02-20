@@ -48,15 +48,10 @@ const Board = () => {
                 priority : task.priority,
                 dueDate : dueDate,
             }
+
+            const responseTask = {...task, state: result.destination.droppableId};
+            setUserTasks(userTasks.map(i => i.taskid === id ? { ...responseTask } : i));
             
-            try {
-                const response = await axiosPrivate.put(`/hour/${id}`, updatedTask);
-                setUserTasks(userTasks.map(i => i.taskid === id ? { ...response.data } : i));
-            } 
-            catch (err) {
-                setError(err.message);
-                errRef.current.focus();
-            }
             const sourceIndex = stateList.indexOf(result.source.droppableId);
             const destIndex = stateList.indexOf(result.destination.droppableId);
             const sourceArr = taskCol[sourceIndex];
@@ -71,6 +66,15 @@ const Board = () => {
             orderArr.splice(sourceIndex, 1, sourceOrder);
             orderArr.splice(destIndex, 1, destOrder);
             localStorage.setItem('taskOrder', JSON.stringify(orderArr));
+
+            try {
+                const response = await axiosPrivate.put(`/hour/${id}`, updatedTask);
+                console.log(response.data);
+            } 
+            catch (err) {
+                setError(err.message);
+                errRef.current.focus();
+            }
         }
     }
 
